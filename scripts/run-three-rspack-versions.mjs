@@ -9,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const CASE_DIR = path.join(ROOT, 'cases/react-10k');
 const ARTIFACTS_DIR = path.join(ROOT, 'artifacts');
+const RUN_META_JSON = path.join(ARTIFACTS_DIR, 'run-meta.json');
 
 function runShell(command, cwd = ROOT) {
   return execFileSync('/bin/zsh', ['-lc', command], {
@@ -72,7 +73,23 @@ function setVersion(version) {
 function main() {
   mkdirSync(ARTIFACTS_DIR, { recursive: true });
   const sampleCount = Number.parseInt(process.env.RUNS ?? '10', 10);
+  const benchmarkRunTimes = Number.parseInt(process.env.RUN_TIMES ?? '1', 10);
+  const benchmarkWarmupTimes = Number.parseInt(process.env.WARMUP_TIMES ?? '0', 10);
   const results = [];
+
+  writeFileSync(
+    RUN_META_JSON,
+    JSON.stringify(
+      {
+        samples_per_version: sampleCount,
+        benchmark_run_times: benchmarkRunTimes,
+        benchmark_warmup_times: benchmarkWarmupTimes,
+        versions: VERSION_MATRIX.map((version) => version.label),
+      },
+      null,
+      2,
+    ) + '\n',
+  );
 
   for (const version of VERSION_MATRIX) {
     console.log(`\n=== ${version.label} ===`);
@@ -81,7 +98,7 @@ function main() {
     for (let run = 1; run <= sampleCount; run += 1) {
       console.log(`Running ${version.label} sample ${run}/${sampleCount}`);
       const stdout = runShell(
-        `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RUN_TIMES=1 WARMUP_TIMES=0 corepack pnpm benchmark'`,
+        `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
       );
       writeFileSync(path.join(ARTIFACTS_DIR, `${version.key}-run-${run}.txt`), stdout);
       results.push({

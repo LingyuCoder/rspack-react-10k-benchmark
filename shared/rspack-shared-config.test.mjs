@@ -14,7 +14,7 @@ test('Rspack 1.x keeps lazyCompilation under experiments', () => {
 });
 
 test('Rspack 2.x moves lazyCompilation to the top level', () => {
-  const config = createRspackSharedConfig('2.0.0-rc.2');
+  const config = createRspackSharedConfig('2.0.0-rc.3');
   assert.deepEqual(config.experiments, { css: false });
   assert.equal(config.lazyCompilation, true);
   assert.deepEqual(config.cache, { type: 'memory' });

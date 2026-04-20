@@ -6,6 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const ARTIFACTS_DIR = path.join(ROOT, 'artifacts');
 const INPUT_JSON = path.join(ARTIFACTS_DIR, 'run-samples.json');
+const META_JSON = path.join(ARTIFACTS_DIR, 'run-meta.json');
 const OUTPUT_JSON = path.join(ARTIFACTS_DIR, 'report.json');
 const OUTPUT_MD = path.join(ARTIFACTS_DIR, 'report.md');
 
@@ -18,9 +19,8 @@ function median(values) {
   return sorted[middle];
 }
 
-function main() {
-  const rows = JSON.parse(readFileSync(INPUT_JSON, 'utf8'));
-  const versions = ['Rspack 1.0.0', 'Rspack 1.7.11', 'Rspack 2.0.0-rc.2'];
+export function createReportData(rows, meta) {
+  const versions = meta.versions;
   const summary = Object.fromEntries(
     versions.map((version) => {
       const subset = rows.filter((row) => row.version === version);
@@ -35,17 +35,16 @@ function main() {
     }),
   );
 
-  writeFileSync(
-    OUTPUT_JSON,
-    JSON.stringify(
-      {
-        samples: rows,
-        summary,
-      },
-      null,
-      2,
-    ) + '\n',
-  );
+  return {
+    meta,
+    samples: rows,
+    summary,
+  };
+}
+
+export function createMarkdownReport(reportData) {
+  const { meta, samples: rows, summary } = reportData;
+  const versions = meta.versions;
 
   const tableRows = [
     '| Version | Build Median (ms) | HMR Median (ms) | Output Size Median (kB) |',
@@ -56,18 +55,44 @@ function main() {
     ),
   ];
 
-  writeFileSync(
-    OUTPUT_MD,
-    [
-      '# Rspack React-10k Benchmark Report',
-      '',
-      'Median values from the collected run samples.',
-      '',
-      ...tableRows,
-      '',
-      `Raw samples: \`${path.basename(INPUT_JSON)}\``,
-    ].join('\n') + '\n',
-  );
+  const detailedRows = [
+    '| Version | Run | Build (ms) | HMR (ms) | Output Size (kB) |',
+    '| --- | ---: | ---: | ---: | ---: |',
+    ...rows.map(
+      (row) =>
+        `| ${row.version} | ${row.run} | ${row.build_ms} | ${row.hmr_ms} | ${row.output_size_kb} |`,
+    ),
+  ];
+
+  return [
+    '# Rspack React-10k Benchmark Report',
+    '',
+    `Samples per version: **${meta.samples_per_version}**`,
+    `Benchmark measured runs per sample: **${meta.benchmark_run_times}**`,
+    `Benchmark warmup runs per sample: **${meta.benchmark_warmup_times}**`,
+    '',
+    '## Summary',
+    '',
+    ...tableRows,
+    '',
+    '## Detailed Samples',
+    '',
+    ...detailedRows,
+    '',
+    `Raw samples: \`${path.basename(INPUT_JSON)}\``,
+    `Run metadata: \`${path.basename(META_JSON)}\``,
+  ].join('\n') + '\n';
 }
 
-main();
+function main() {
+  const rows = JSON.parse(readFileSync(INPUT_JSON, 'utf8'));
+  const meta = JSON.parse(readFileSync(META_JSON, 'utf8'));
+  const reportData = createReportData(rows, meta);
+
+  writeFileSync(OUTPUT_JSON, JSON.stringify(reportData, null, 2) + '\n');
+  writeFileSync(OUTPUT_MD, createMarkdownReport(reportData));
+}
+
+if (import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+  main();
+}

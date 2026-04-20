@@ -1,6 +1,6 @@
 # Rspack React-10k Benchmark
 
-Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, and `2.0.0-rc.2` on the `react-10k` case.
+Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, and `2.0.0-rc.3` on the `react-10k` case.
 
 ## What It Benchmarks
 
