@@ -74,8 +74,8 @@ function setVersion(version) {
 function main() {
   mkdirSync(ARTIFACTS_DIR, { recursive: true });
   const sampleCount = Number.parseInt(process.env.RUNS ?? '10', 10);
-  const benchmarkRunTimes = Number.parseInt(process.env.RUN_TIMES ?? '1', 10);
-  const benchmarkWarmupTimes = Number.parseInt(process.env.WARMUP_TIMES ?? '0', 10);
+  const benchmarkRunTimes = Number.parseInt(process.env.RUN_TIMES ?? '3', 10);
+  const benchmarkWarmupTimes = Number.parseInt(process.env.WARMUP_TIMES ?? '2', 10);
   const results = [];
 
   writeFileSync(

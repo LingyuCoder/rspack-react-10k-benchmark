@@ -12,8 +12,8 @@ test('report data keeps summary and sample details', () => {
   ];
   const meta = {
     samples_per_version: 2,
-    benchmark_run_times: 1,
-    benchmark_warmup_times: 0,
+    benchmark_run_times: 3,
+    benchmark_warmup_times: 2,
     versions: ['Rspack 1.0.0', 'Rspack 2.0.0-rc.3'],
   };
 
@@ -27,8 +27,8 @@ test('markdown report includes run counts and detailed samples table', () => {
   const markdown = createMarkdownReport({
     meta: {
       samples_per_version: 10,
-      benchmark_run_times: 1,
-      benchmark_warmup_times: 0,
+      benchmark_run_times: 3,
+      benchmark_warmup_times: 2,
       versions: ['Rspack 1.0.0'],
     },
     samples: [{ version: 'Rspack 1.0.0', run: 1, build_ms: 10, hmr_ms: 20, output_size_kb: 30 }],
@@ -42,6 +42,7 @@ test('markdown report includes run counts and detailed samples table', () => {
   });
 
   assert.match(markdown, /Samples per version: \*\*10\*\*/);
-  assert.match(markdown, /Benchmark warmup runs per sample: \*\*0\*\*/);
+  assert.match(markdown, /Benchmark measured runs per sample: \*\*3\*\*/);
+  assert.match(markdown, /Benchmark warmup runs per sample: \*\*2\*\*/);
   assert.match(markdown, /\| Version \| Run \| Build \(ms\) \| HMR \(ms\) \| Output Size \(kB\) \|/);
 });
