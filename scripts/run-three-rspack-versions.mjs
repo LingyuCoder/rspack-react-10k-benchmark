@@ -43,7 +43,7 @@ function parseRunMetrics(stdout, toolName) {
   return {
     build_ms: Number.parseInt(buildRow[1], 10),
     hmr_ms: Number.parseInt(devRow[3], 10),
-    output_size_kb: Number.parseFloat(buildRow[4]),
+    output_size_kb: Number.parseFloat(buildRow[3]),
   };
 }
 
