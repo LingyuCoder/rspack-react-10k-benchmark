@@ -1,0 +1,22 @@
+{
+  "name": "react-10k",
+  "version": "0.0.0",
+  "scripts": {
+    "build:rspack": "rspack build",
+    "start:rspack": "rspack serve"
+  },
+  "dependencies": {
+    "@iconify-icons/material-symbols": "^1.2.58",
+    "@iconify/react": "^6.0.2",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.14.0"
+  },
+  "browserslist": "Chrome >= 93",
+  "devDependencies": {
+    "@rspack/cli": "2.0.0-rc.2",
+    "@rspack/core": "2.0.0-rc.2",
+    "@rspack/dev-server": "2.0.0-rc.2",
+    "@rspack/plugin-react-refresh": "2.0.0"
+  }
+}
