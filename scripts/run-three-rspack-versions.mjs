@@ -10,9 +10,10 @@ const ROOT = path.join(__dirname, '..');
 const CASE_DIR = path.join(ROOT, 'cases/react-10k');
 const ARTIFACTS_DIR = path.join(ROOT, 'artifacts');
 const RUN_META_JSON = path.join(ARTIFACTS_DIR, 'run-meta.json');
+const SHELL = process.env.SHELL || '/bin/bash';
 
 function runShell(command, cwd = ROOT) {
-  return execFileSync('/bin/zsh', ['-lc', command], {
+  return execFileSync(SHELL, ['-lc', command], {
     cwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
