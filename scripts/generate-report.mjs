@@ -1,7 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = '/Users/bytedance/Documents/Playground/rspack-react-10k-benchmark';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.join(__dirname, '..');
 const ARTIFACTS_DIR = path.join(ROOT, 'artifacts');
 const INPUT_JSON = path.join(ARTIFACTS_DIR, 'run-samples.json');
 const OUTPUT_JSON = path.join(ARTIFACTS_DIR, 'report.json');
