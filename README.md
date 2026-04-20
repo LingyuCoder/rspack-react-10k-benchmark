@@ -23,6 +23,12 @@ Run the three-version benchmark matrix:
 pnpm benchmark:versions
 ```
 
+Default sampling strategy:
+
+- outer samples per version: `1`
+- inner benchmark measured runs: `10`
+- inner benchmark warmup runs: `2`
+
 Generate the report files from the raw samples:
 
 ```bash
