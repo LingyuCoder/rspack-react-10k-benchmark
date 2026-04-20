@@ -14,6 +14,7 @@ import color from 'picocolors';
 import pidusage from 'pidusage';
 import { markdownTable } from 'markdown-table';
 import { caseName } from '../shared/constants.mjs';
+import { createBuildMetricColumns } from './build-metric-columns.mjs';
 import { resolveBinFilePath } from './resolve-bin-file.mjs';
 import {
   getFileSizes,
@@ -57,7 +58,6 @@ type NumericPerfMetricKey =
   | 'leafHmr'
   | 'hmr'
   | 'prodBuild'
-  | 'prodHotBuild'
   | 'buildRSS';
 
 interface PerfMetrics extends Partial<Record<NumericPerfMetricKey, number>> {
@@ -700,29 +700,6 @@ async function runBuildBenchmark(
   metrics.prodBuild = buildTime;
 
   await coolDown();
-
-  await runHotBuildBenchmark(buildTool, perfResult);
-}
-
-async function runHotBuildBenchmark(
-  buildTool: BuildTool,
-  perfResult: PerfResultMap,
-): Promise<void> {
-  const metrics = ensureMetrics(perfResult, buildTool.name);
-  // Clean up dist dir
-  await fse.remove(distDir);
-
-  const { time: buildTime } = await buildTool.build();
-
-  logger.success(
-    color.dim(buildTool.name) +
-      ' built with cache in ' +
-      color.green(buildTime + 'ms'),
-  );
-
-  metrics.prodHotBuild = buildTime;
-
-  await coolDown();
 }
 
 async function benchAllCases(): Promise<void> {
@@ -868,20 +845,7 @@ if (runDev) {
 
 columnGroups.push({
   label: 'Build metrics',
-  columns: [
-    nameColumn,
-    { title: 'Build (no cache)', data: getData('prodBuild', 'ms') },
-    { title: 'Build (with cache)', data: getData('prodHotBuild', 'ms') },
-    {
-      title: 'Memory (RSS)',
-      data: getData('buildRSS', 'MB'),
-    },
-    { title: 'Output size', data: getData('outputSize', 'kB') },
-    {
-      title: 'Gzipped size',
-      data: getData('gzippedSize', 'kB'),
-    },
-  ],
+  columns: createBuildMetricColumns(nameColumn, getData),
 });
 
 for (const { label, columns } of columnGroups) {
