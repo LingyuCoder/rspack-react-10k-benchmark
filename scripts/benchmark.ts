@@ -15,6 +15,7 @@ import pidusage from 'pidusage';
 import { markdownTable } from 'markdown-table';
 import { caseName } from '../shared/constants.mjs';
 import { createBuildMetricColumns } from './build-metric-columns.mjs';
+import { getPuppeteerLaunchOptions } from './puppeteer-launch-options.mjs';
 import { resolveBinFilePath } from './resolve-bin-file.mjs';
 import {
   getFileSizes,
@@ -458,7 +459,7 @@ parseToolNames().forEach((name) => {
   }
 });
 
-const browser: Browser = await puppeteer.launch();
+const browser: Browser = await puppeteer.launch(getPuppeteerLaunchOptions());
 const { WARMUP_TIMES, RUN_TIMES } = process.env;
 const warmupTimes = WARMUP_TIMES ? Number(WARMUP_TIMES) : 2;
 const runTimes = RUN_TIMES ? Number(RUN_TIMES) : 3;
