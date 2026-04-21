@@ -464,6 +464,7 @@ const { WARMUP_TIMES, RUN_TIMES } = process.env;
 const warmupTimes = WARMUP_TIMES ? Number(WARMUP_TIMES) : 2;
 const runTimes = RUN_TIMES ? Number(RUN_TIMES) : 3;
 const totalTimes = warmupTimes + runTimes;
+const shouldMeasureHmr = process.env.BENCHMARK_HMR !== '0';
 
 logger.log('');
 logger.info(
@@ -519,6 +520,18 @@ async function runDevBenchmark(
       color.green(time + loadTime + 'ms'),
   );
   metrics.devColdStart = time + loadTime;
+
+  if (!shouldMeasureHmr) {
+    await page.close();
+    const rss = await stopServer();
+    metrics.devRSS = rss;
+
+    await coolDown();
+    logger.success(color.dim(buildTool.name) + ' dev server closed');
+
+    await runHotStartBenchmark(buildTool, perfResult);
+    return;
+  }
 
   let waitResolve!: () => void;
   const waitPromise = new Promise<void>((resolve) => {

@@ -21,8 +21,12 @@ function median(values) {
 
 const DEFAULT_SCENARIO = {
   key: 'default-cache',
-  label: 'Default cache',
+  label: 'Memory cache',
 };
+
+function medianOrUndefined(values) {
+  return values.length > 0 ? median(values) : undefined;
+}
 
 function getScenarios(meta, rows) {
   if (Array.isArray(meta.scenarios) && meta.scenarios.length > 0) {
@@ -42,7 +46,6 @@ function getScenarioSummaryColumns(scenarioKey) {
     return [
       ['build_ms_median', 'Build Median (ms)'],
       ['startup_with_cache_ms_median', 'Startup With Cache Median (ms)'],
-      ['hmr_ms_median', 'HMR Median (ms)'],
       ['output_size_kb_median', 'Output Size Median (kB)'],
     ];
   }
@@ -59,7 +62,6 @@ function getScenarioDetailColumns(scenarioKey) {
     return [
       ['build_ms', 'Build (ms)'],
       ['startup_with_cache_ms', 'Startup With Cache (ms)'],
-      ['hmr_ms', 'HMR (ms)'],
       ['output_size_kb', 'Output Size (kB)'],
     ];
   }
@@ -84,14 +86,20 @@ export function createReportData(rows, meta) {
         return [
           version,
           {
-            build_ms_median: median(subset.map((row) => row.build_ms)),
-            startup_with_cache_ms_median: median(
+            build_ms_median: medianOrUndefined(subset.map((row) => row.build_ms)),
+            startup_with_cache_ms_median: medianOrUndefined(
               subset
                 .map((row) => row.startup_with_cache_ms)
                 .filter((value) => typeof value === 'number'),
             ),
-            hmr_ms_median: median(subset.map((row) => row.hmr_ms)),
-            output_size_kb_median: median(subset.map((row) => row.output_size_kb)),
+            hmr_ms_median: medianOrUndefined(
+              subset
+                .map((row) => row.hmr_ms)
+                .filter((value) => typeof value === 'number'),
+            ),
+            output_size_kb_median: medianOrUndefined(
+              subset.map((row) => row.output_size_kb),
+            ),
           },
         ];
       }),

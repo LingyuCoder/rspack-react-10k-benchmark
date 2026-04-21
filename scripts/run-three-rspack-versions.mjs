@@ -27,28 +27,56 @@ function runShell(command, cwd = ROOT) {
   });
 }
 
-function extractRow(text, toolName, marker) {
+function extractTable(text, marker) {
   const section = text.slice(text.indexOf(marker));
-  const line = section
+  const lines = section
     .split('\n')
-    .find((item) => item.startsWith('|') && item.includes(toolName));
-  if (!line) {
-    throw new Error(`Unable to find ${toolName} row in ${marker}`);
+    .filter((item) => item.startsWith('|'));
+  if (lines.length < 3) {
+    throw new Error(`Unable to find markdown table in ${marker}`);
   }
-  return line
+  const header = lines[0]
     .split('|')
     .slice(1, -1)
     .map((cell) => cell.trim());
+  return { header, lines };
+}
+
+function extractRow(text, toolName, marker) {
+  const { header, lines } = extractTable(text, marker);
+  const matchedLine = lines
+    .slice(2)
+    .find((item) => item.startsWith('|') && item.includes(toolName));
+  if (!matchedLine) {
+    throw new Error(`Unable to find ${toolName} row in ${marker}`);
+  }
+  const row = matchedLine
+    .split('|')
+    .slice(1, -1)
+    .map((cell) => cell.trim());
+  return { header, row };
 }
 
 export function parseRunMetrics(stdout, toolName) {
-  const devRow = extractRow(stdout, toolName, 'Development metrics:');
-  const buildRow = extractRow(stdout, toolName, 'Build metrics:');
+  const { header: devHeader, row: devRow } = extractRow(
+    stdout,
+    toolName,
+    'Development metrics:',
+  );
+  const { header: buildHeader, row: buildRow } = extractRow(
+    stdout,
+    toolName,
+    'Build metrics:',
+  );
+  const dev = Object.fromEntries(devHeader.map((title, index) => [title, devRow[index]]));
+  const build = Object.fromEntries(
+    buildHeader.map((title, index) => [title, buildRow[index]]),
+  );
   return {
-    build_ms: Number.parseInt(buildRow[1], 10),
-    startup_with_cache_ms: Number.parseInt(devRow[2], 10),
-    hmr_ms: Number.parseInt(devRow[3], 10),
-    output_size_kb: Number.parseFloat(buildRow[3]),
+    build_ms: Number.parseInt(build['Build (no cache)'], 10),
+    startup_with_cache_ms: Number.parseInt(dev['Startup (with cache)'], 10),
+    hmr_ms: dev.HMR ? Number.parseInt(dev.HMR, 10) : undefined,
+    output_size_kb: Number.parseFloat(build['Output size']),
   };
 }
 
@@ -108,6 +136,7 @@ function main() {
           key: scenario.key,
           label: scenario.label,
           cache_mode: scenario.cacheMode,
+          measure_hmr: scenario.measureHmr,
           versions: getVersionsForScenario(scenario).map((version) => version.label),
         })),
       },
@@ -126,7 +155,7 @@ function main() {
       for (let run = 1; run <= sampleCount; run += 1) {
         console.log(`Running ${version.label} sample ${run}/${sampleCount}`);
         const stdout = runShell(
-          `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RSPACK_CACHE_MODE=${scenario.cacheMode} RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
+          `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RSPACK_CACHE_MODE=${scenario.cacheMode} BENCHMARK_HMR=${scenario.measureHmr ? '1' : '0'} RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
         );
         writeFileSync(
           path.join(ARTIFACTS_DIR, `${scenario.key}-${version.key}-run-${run}.txt`),

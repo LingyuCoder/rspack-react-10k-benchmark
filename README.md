@@ -4,14 +4,13 @@ Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, 
 
 ## What It Benchmarks
 
-- Default cache scenario:
+- Memory cache scenario:
   - `Build (no cache)`
   - `HMR`
   - `Output size`
 - Persistent cache scenario (`Rspack 1.7.11` and `2.0.0-rc.3` only):
   - `Build (no cache)`
   - `Startup (with cache)`
-  - `HMR`
   - `Output size`
 
 ## Local Usage
@@ -50,7 +49,7 @@ pnpm report
 Run both steps together:
 
 ```bash
-pnpm ci
+pnpm run ci
 ```
 
 ## Output
