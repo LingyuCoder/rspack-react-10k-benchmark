@@ -54,3 +54,48 @@ export const VERSION_MATRIX = [
     webpackDevServerOverride: null,
   },
 ];
+
+export const SCENARIO_MATRIX = [
+  {
+    key: 'default-cache',
+    label: 'Default cache',
+    cacheMode: 'default',
+    versionKeys: VERSION_MATRIX.map((version) => version.key),
+  },
+  {
+    key: 'persistent-cache',
+    label: 'Persistent cache',
+    cacheMode: 'persistent',
+    versionKeys: ['1.7.11', '2.0.0-rc.3'],
+  },
+];
+
+export function getVersionsForScenario(scenario) {
+  return scenario.versionKeys.map((versionKey) => {
+    const version = VERSION_MATRIX.find((item) => item.key === versionKey);
+    if (!version) {
+      throw new Error(`Unknown Rspack version "${versionKey}" in scenario "${scenario.key}"`);
+    }
+    return version;
+  });
+}
+
+export function getSelectedScenarios(selectedKeys = process.env.SCENARIOS) {
+  if (!selectedKeys) {
+    return SCENARIO_MATRIX;
+  }
+
+  const keys = selectedKeys
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const selected = SCENARIO_MATRIX.filter((scenario) => keys.includes(scenario.key));
+
+  if (selected.length !== keys.length) {
+    const known = new Set(selected.map((scenario) => scenario.key));
+    const unknownKeys = keys.filter((key) => !known.has(key));
+    throw new Error(`Unknown benchmark scenario(s): ${unknownKeys.join(', ')}`);
+  }
+
+  return selected;
+}

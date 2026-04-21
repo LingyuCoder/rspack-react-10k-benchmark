@@ -4,9 +4,15 @@ Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, 
 
 ## What It Benchmarks
 
-- `Build (no cache)`
-- `HMR`
-- `Output size`
+- Default cache scenario:
+  - `Build (no cache)`
+  - `HMR`
+  - `Output size`
+- Persistent cache scenario (`Rspack 1.7.11` and `2.0.0-rc.3` only):
+  - `Build (no cache)`
+  - `Startup (with cache)`
+  - `HMR`
+  - `Output size`
 
 ## Local Usage
 
@@ -21,6 +27,12 @@ Run the three-version benchmark matrix:
 
 ```bash
 pnpm benchmark:versions
+```
+
+Run only the persistent-cache comparison:
+
+```bash
+SCENARIOS=persistent-cache pnpm benchmark:versions
 ```
 
 Default sampling strategy:
@@ -46,6 +58,7 @@ pnpm ci
 Generated files land in `artifacts/`:
 
 - `run-samples.json`
+- `run-meta.json`
 - `report.json`
 - `report.md`
 

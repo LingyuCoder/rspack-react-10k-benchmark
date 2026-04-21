@@ -3,7 +3,11 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { VERSION_MATRIX } from './version-config.mjs';
+import {
+  VERSION_MATRIX,
+  getSelectedScenarios,
+  getVersionsForScenario,
+} from './version-config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -37,11 +41,12 @@ function extractRow(text, toolName, marker) {
     .map((cell) => cell.trim());
 }
 
-function parseRunMetrics(stdout, toolName) {
+export function parseRunMetrics(stdout, toolName) {
   const devRow = extractRow(stdout, toolName, 'Development metrics:');
   const buildRow = extractRow(stdout, toolName, 'Build metrics:');
   return {
     build_ms: Number.parseInt(buildRow[1], 10),
+    startup_with_cache_ms: Number.parseInt(devRow[2], 10),
     hmr_ms: Number.parseInt(devRow[3], 10),
     output_size_kb: Number.parseFloat(buildRow[3]),
   };
@@ -89,6 +94,7 @@ function main() {
     10,
   );
   const results = [];
+  const scenarios = getSelectedScenarios();
 
   writeFileSync(
     RUN_META_JSON,
@@ -98,28 +104,46 @@ function main() {
         benchmark_run_times: benchmarkRunTimes,
         benchmark_warmup_times: benchmarkWarmupTimes,
         versions: VERSION_MATRIX.map((version) => version.label),
+        scenarios: scenarios.map((scenario) => ({
+          key: scenario.key,
+          label: scenario.label,
+          cache_mode: scenario.cacheMode,
+          versions: getVersionsForScenario(scenario).map((version) => version.label),
+        })),
       },
       null,
       2,
     ) + '\n',
   );
 
-  for (const version of VERSION_MATRIX) {
-    console.log(`\n=== ${version.label} ===`);
-    setVersion(version);
+  for (const scenario of scenarios) {
+    console.log(`\n=== ${scenario.label} ===`);
 
-    for (let run = 1; run <= sampleCount; run += 1) {
-      console.log(`Running ${version.label} sample ${run}/${sampleCount}`);
-      const stdout = runShell(
-        `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
-      );
-      writeFileSync(path.join(ARTIFACTS_DIR, `${version.key}-run-${run}.txt`), stdout);
-      results.push({
-        version: version.label,
-        run,
-        ...parseRunMetrics(stdout, version.toolName),
-      });
-      writeFileSync(path.join(ARTIFACTS_DIR, 'run-samples.json'), JSON.stringify(results, null, 2) + '\n');
+    for (const version of getVersionsForScenario(scenario)) {
+      console.log(`\n=== ${scenario.label} / ${version.label} ===`);
+      setVersion(version);
+
+      for (let run = 1; run <= sampleCount; run += 1) {
+        console.log(`Running ${version.label} sample ${run}/${sampleCount}`);
+        const stdout = runShell(
+          `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RSPACK_CACHE_MODE=${scenario.cacheMode} RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
+        );
+        writeFileSync(
+          path.join(ARTIFACTS_DIR, `${scenario.key}-${version.key}-run-${run}.txt`),
+          stdout,
+        );
+        results.push({
+          scenario_key: scenario.key,
+          scenario_label: scenario.label,
+          version: version.label,
+          run,
+          ...parseRunMetrics(stdout, version.toolName),
+        });
+        writeFileSync(
+          path.join(ARTIFACTS_DIR, 'run-samples.json'),
+          JSON.stringify(results, null, 2) + '\n',
+        );
+      }
     }
   }
 }
