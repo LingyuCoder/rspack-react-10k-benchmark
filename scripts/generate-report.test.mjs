@@ -74,7 +74,7 @@ test('report data keeps summary and sample details', () => {
   assert.equal(report.samples.length, 4);
 });
 
-test('markdown report includes the persistent-cache section and startup-with-cache column', () => {
+test('markdown report keeps summary sections without detailed sample tables', () => {
   const markdown = createMarkdownReport({
     meta: {
       samples_per_version: 1,
@@ -147,8 +147,8 @@ test('markdown report includes the persistent-cache section and startup-with-cac
   assert.match(markdown, /Benchmark warmup runs per sample: \*\*2\*\*/);
   assert.match(markdown, /## Memory cache/);
   assert.match(markdown, /## Persistent cache/);
+  assert.doesNotMatch(markdown, /Detailed Samples/);
+  assert.doesNotMatch(markdown, /\| Version \| Run \|/);
   assert.doesNotMatch(markdown, /\| Version \| Build Median \(ms\) \| Startup With Cache Median \(ms\) \| HMR Median \(ms\) \| Output Size Median \(kB\) \|/);
-  assert.doesNotMatch(markdown, /\| Version \| Run \| Build \(ms\) \| Startup With Cache \(ms\) \| HMR \(ms\) \| Output Size \(kB\) \|/);
   assert.match(markdown, /\| Version \| Build Median \(ms\) \| Startup With Cache Median \(ms\) \| Output Size Median \(kB\) \|/);
-  assert.match(markdown, /\| Version \| Run \| Build \(ms\) \| Startup With Cache \(ms\) \| Output Size \(kB\) \|/);
 });

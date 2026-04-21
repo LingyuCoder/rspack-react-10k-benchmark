@@ -57,22 +57,6 @@ function getScenarioSummaryColumns(scenarioKey) {
   ];
 }
 
-function getScenarioDetailColumns(scenarioKey) {
-  if (scenarioKey === 'persistent-cache') {
-    return [
-      ['build_ms', 'Build (ms)'],
-      ['startup_with_cache_ms', 'Startup With Cache (ms)'],
-      ['output_size_kb', 'Output Size (kB)'],
-    ];
-  }
-
-  return [
-    ['build_ms', 'Build (ms)'],
-    ['hmr_ms', 'HMR (ms)'],
-    ['output_size_kb', 'Output Size (kB)'],
-  ];
-}
-
 export function createReportData(rows, meta) {
   const scenarios = getScenarios(meta, rows).map((scenario) => {
     const scenarioRows = rows.filter((row) => {
@@ -121,20 +105,12 @@ export function createReportData(rows, meta) {
 }
 
 export function createMarkdownReport(reportData) {
-  const { meta, scenarios, samples: rows } = reportData;
+  const { meta, scenarios } = reportData;
 
   const sections = scenarios.flatMap((scenario) => {
     const summaryColumns = getScenarioSummaryColumns(scenario.key);
-    const detailColumns = getScenarioDetailColumns(scenario.key);
     const scenarioVersions = scenario.versions ?? Object.keys(scenario.summary);
-    const scenarioSamples =
-      scenario.samples ??
-      rows.filter((row) => {
-        const rowScenarioKey = row.scenario_key ?? DEFAULT_SCENARIO.key;
-        return rowScenarioKey === scenario.key;
-      });
     const summaryHeader = ['Version', ...summaryColumns.map(([, label]) => label)];
-    const detailHeader = ['Version', 'Run', ...detailColumns.map(([, label]) => label)];
 
     const summaryRows = [
       `## ${scenario.label}`,
@@ -146,19 +122,6 @@ export function createMarkdownReport(reportData) {
         return (
           '| ' +
           [version, ...summaryColumns.map(([key]) => metrics[key])]
-            .join(' | ') +
-          ' |'
-        );
-      }),
-      '',
-      `### ${scenario.label} Detailed Samples`,
-      '',
-      '| ' + detailHeader.join(' | ') + ' |',
-      '| ' + detailHeader.map((_, index) => (index === 0 ? '---' : '---:')).join(' | ') + ' |',
-      ...scenarioSamples.map((row) => {
-        return (
-          '| ' +
-          [row.version, row.run, ...detailColumns.map(([key]) => row[key])]
             .join(' | ') +
           ' |'
         );
