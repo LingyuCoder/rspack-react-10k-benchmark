@@ -31,8 +31,7 @@ test('report data keeps summary and sample details', () => {
       version: 'Rspack 1.7.11',
       run: 1,
       build_ms: 8,
-      startup_with_cache_ms: 12,
-      hmr_ms: 18,
+      build_with_cache_ms: 4,
       output_size_kb: 28,
     },
     {
@@ -41,8 +40,7 @@ test('report data keeps summary and sample details', () => {
       version: 'Rspack 2.0.0-rc.3',
       run: 1,
       build_ms: 12,
-      startup_with_cache_ms: 10,
-      hmr_ms: 16,
+      build_with_cache_ms: 6,
       output_size_kb: 28,
     },
   ];
@@ -68,8 +66,8 @@ test('report data keeps summary and sample details', () => {
   const report = createReportData(rows, meta);
   assert.equal(report.scenarios[0].summary['Rspack 1.0.0'].build_ms_median, 12);
   assert.equal(
-    report.scenarios[1].summary['Rspack 1.7.11'].startup_with_cache_ms_median,
-    12,
+    report.scenarios[1].summary['Rspack 1.7.11'].build_with_cache_ms_median,
+    4,
   );
   assert.equal(report.samples.length, 4);
 });
@@ -111,8 +109,7 @@ test('markdown report keeps summary sections without detailed sample tables', ()
         version: 'Rspack 1.7.11',
         run: 1,
         build_ms: 8,
-        startup_with_cache_ms: 12,
-        hmr_ms: 18,
+        build_with_cache_ms: 4,
         output_size_kb: 28,
       },
     ],
@@ -134,7 +131,7 @@ test('markdown report keeps summary sections without detailed sample tables', ()
         summary: {
           'Rspack 1.7.11': {
             build_ms_median: 8,
-            startup_with_cache_ms_median: 12,
+            build_with_cache_ms_median: 4,
             output_size_kb_median: 28,
           },
         },
@@ -150,5 +147,6 @@ test('markdown report keeps summary sections without detailed sample tables', ()
   assert.doesNotMatch(markdown, /Detailed Samples/);
   assert.doesNotMatch(markdown, /\| Version \| Run \|/);
   assert.doesNotMatch(markdown, /\| Version \| Build Median \(ms\) \| Startup With Cache Median \(ms\) \| HMR Median \(ms\) \| Output Size Median \(kB\) \|/);
-  assert.match(markdown, /\| Version \| Build Median \(ms\) \| Startup With Cache Median \(ms\) \| Output Size Median \(kB\) \|/);
+  assert.doesNotMatch(markdown, /Startup With Cache Median/);
+  assert.match(markdown, /\| Version \| Build Median \(ms\) \| Build With Persistent Cache Median \(ms\) \| Output Size Median \(kB\) \|/);
 });

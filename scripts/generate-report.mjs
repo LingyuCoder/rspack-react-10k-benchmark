@@ -45,7 +45,7 @@ function getScenarioSummaryColumns(scenarioKey) {
   if (scenarioKey === 'persistent-cache') {
     return [
       ['build_ms_median', 'Build Median (ms)'],
-      ['startup_with_cache_ms_median', 'Startup With Cache Median (ms)'],
+      ['build_with_cache_ms_median', 'Build With Persistent Cache Median (ms)'],
       ['output_size_kb_median', 'Output Size Median (kB)'],
     ];
   }
@@ -71,6 +71,11 @@ export function createReportData(rows, meta) {
           version,
           {
             build_ms_median: medianOrUndefined(subset.map((row) => row.build_ms)),
+            build_with_cache_ms_median: medianOrUndefined(
+              subset
+                .map((row) => row.build_with_cache_ms)
+                .filter((value) => typeof value === 'number'),
+            ),
             startup_with_cache_ms_median: medianOrUndefined(
               subset
                 .map((row) => row.startup_with_cache_ms)

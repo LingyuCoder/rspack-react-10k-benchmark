@@ -28,6 +28,9 @@ function runShell(command, cwd = ROOT) {
 }
 
 function extractTable(text, marker) {
+  if (!text.includes(marker)) {
+    return null;
+  }
   const section = text.slice(text.indexOf(marker));
   const lines = section
     .split('\n')
@@ -58,23 +61,29 @@ function extractRow(text, toolName, marker) {
 }
 
 export function parseRunMetrics(stdout, toolName) {
-  const { header: devHeader, row: devRow } = extractRow(
-    stdout,
-    toolName,
-    'Development metrics:',
-  );
+  const devTable = extractTable(stdout, 'Development metrics:');
+  const devEntry = devTable ? extractRow(stdout, toolName, 'Development metrics:') : null;
   const { header: buildHeader, row: buildRow } = extractRow(
     stdout,
     toolName,
     'Build metrics:',
   );
-  const dev = Object.fromEntries(devHeader.map((title, index) => [title, devRow[index]]));
+  const dev = devEntry
+    ? Object.fromEntries(
+        devEntry.header.map((title, index) => [title, devEntry.row[index]]),
+      )
+    : {};
   const build = Object.fromEntries(
     buildHeader.map((title, index) => [title, buildRow[index]]),
   );
   return {
     build_ms: Number.parseInt(build['Build (no cache)'], 10),
-    startup_with_cache_ms: Number.parseInt(dev['Startup (with cache)'], 10),
+    build_with_cache_ms: build['Build (with cache)']
+      ? Number.parseInt(build['Build (with cache)'], 10)
+      : undefined,
+    startup_with_cache_ms: dev['Startup (with cache)']
+      ? Number.parseInt(dev['Startup (with cache)'], 10)
+      : undefined,
     hmr_ms: dev.HMR ? Number.parseInt(dev.HMR, 10) : undefined,
     output_size_kb: Number.parseFloat(build['Output size']),
   };
@@ -136,7 +145,9 @@ function main() {
           key: scenario.key,
           label: scenario.label,
           cache_mode: scenario.cacheMode,
+          measure_dev: scenario.measureDev,
           measure_hmr: scenario.measureHmr,
+          measure_build_with_cache: scenario.measureBuildWithCache,
           versions: getVersionsForScenario(scenario).map((version) => version.label),
         })),
       },
@@ -155,7 +166,7 @@ function main() {
       for (let run = 1; run <= sampleCount; run += 1) {
         console.log(`Running ${version.label} sample ${run}/${sampleCount}`);
         const stdout = runShell(
-          `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RSPACK_CACHE_MODE=${scenario.cacheMode} BENCHMARK_HMR=${scenario.measureHmr ? '1' : '0'} RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
+          `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RSPACK_CACHE_MODE=${scenario.cacheMode} BENCHMARK_DEV=${scenario.measureDev ? '1' : '0'} BENCHMARK_HMR=${scenario.measureHmr ? '1' : '0'} BENCHMARK_BUILD_WITH_CACHE=${scenario.measureBuildWithCache ? '1' : '0'} RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
         );
         writeFileSync(
           path.join(ARTIFACTS_DIR, `${scenario.key}-${version.key}-run-${run}.txt`),

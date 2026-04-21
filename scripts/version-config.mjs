@@ -60,14 +60,18 @@ export const SCENARIO_MATRIX = [
     key: 'default-cache',
     label: 'Memory cache',
     cacheMode: 'default',
+    measureDev: true,
     measureHmr: true,
+    measureBuildWithCache: false,
     versionKeys: VERSION_MATRIX.map((version) => version.key),
   },
   {
     key: 'persistent-cache',
     label: 'Persistent cache',
     cacheMode: 'persistent',
+    measureDev: false,
     measureHmr: false,
+    measureBuildWithCache: true,
     versionKeys: ['1.7.11', '2.0.0-rc.3'],
   },
 ];

@@ -10,7 +10,7 @@ Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, 
   - `Output size`
 - Persistent cache scenario (`Rspack 1.7.11` and `2.0.0-rc.3` only):
   - `Build (no cache)`
-  - `Startup (with cache)`
+  - `Build (with persistent cache)`
   - `Output size`
 
 ## Local Usage

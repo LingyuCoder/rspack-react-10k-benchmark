@@ -59,6 +59,7 @@ type NumericPerfMetricKey =
   | 'leafHmr'
   | 'hmr'
   | 'prodBuild'
+  | 'prodHotBuild'
   | 'buildRSS';
 
 interface PerfMetrics extends Partial<Record<NumericPerfMetricKey, number>> {
@@ -464,7 +465,9 @@ const { WARMUP_TIMES, RUN_TIMES } = process.env;
 const warmupTimes = WARMUP_TIMES ? Number(WARMUP_TIMES) : 2;
 const runTimes = RUN_TIMES ? Number(RUN_TIMES) : 3;
 const totalTimes = warmupTimes + runTimes;
+const shouldMeasureDev = runDev && process.env.BENCHMARK_DEV !== '0';
 const shouldMeasureHmr = process.env.BENCHMARK_HMR !== '0';
+const shouldMeasureBuildWithCache = process.env.BENCHMARK_BUILD_WITH_CACHE === '1';
 
 logger.log('');
 logger.info(
@@ -714,6 +717,30 @@ async function runBuildBenchmark(
   metrics.prodBuild = buildTime;
 
   await coolDown();
+
+  if (shouldMeasureBuildWithCache) {
+    await runHotBuildBenchmark(buildTool, perfResult);
+  }
+}
+
+async function runHotBuildBenchmark(
+  buildTool: BuildTool,
+  perfResult: PerfResultMap,
+): Promise<void> {
+  const metrics = ensureMetrics(perfResult, buildTool.name);
+  await fse.remove(distDir);
+
+  const { time: buildTime } = await buildTool.build();
+
+  logger.success(
+    color.dim(buildTool.name) +
+      ' built with cache in ' +
+      color.green(buildTime + 'ms'),
+  );
+
+  metrics.prodHotBuild = buildTime;
+
+  await coolDown();
 }
 
 async function benchAllCases(): Promise<void> {
@@ -723,7 +750,7 @@ async function benchAllCases(): Promise<void> {
 
   for (const buildTool of shuffledBuildTools) {
     ensureMetrics(perfResult, buildTool.name);
-    if (runDev) {
+    if (shouldMeasureDev) {
       await runDevBenchmark(buildTool, perfResult);
     }
     await runBuildBenchmark(buildTool, perfResult);
@@ -835,7 +862,7 @@ const nameColumn: Column = {
 
 const columnGroups: { label: string; columns: Column[] }[] = [];
 
-if (runDev) {
+if (shouldMeasureDev) {
   columnGroups.push({
     label: 'Development metrics',
     columns: [
@@ -859,7 +886,9 @@ if (runDev) {
 
 columnGroups.push({
   label: 'Build metrics',
-  columns: createBuildMetricColumns(nameColumn, getData),
+  columns: createBuildMetricColumns(nameColumn, getData, {
+    includeBuildWithCache: shouldMeasureBuildWithCache,
+  }),
 });
 
 for (const { label, columns } of columnGroups) {
