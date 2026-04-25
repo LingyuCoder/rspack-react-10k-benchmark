@@ -6,6 +6,7 @@ import {
   DEFAULT_BENCHMARK_WARMUP_TIMES,
   DEFAULT_SAMPLES_PER_VERSION,
   createDevDependencySetArgs,
+  createSetVersionInstallCommand,
   parseRunMetrics,
 } from './run-three-rspack-versions.mjs';
 import { SCENARIO_MATRIX, VERSION_MATRIX } from './version-config.mjs';
@@ -81,6 +82,15 @@ test('dependency updates preserve tag specifiers instead of resolving them first
       '@rspack/plugin-react-refresh': 'latest',
     }),
     '"devDependencies.@rspack/core=latest" "devDependencies.@rspack/plugin-react-refresh=latest"',
+  );
+});
+
+test('dynamic version installs opt out of CI frozen lockfiles', () => {
+  assert.equal(
+    createSetVersionInstallCommand({
+      '@rspack/core': '1.0.0',
+    }),
+    'corepack pnpm pkg set "devDependencies.@rspack/core=1.0.0" && corepack pnpm install --no-frozen-lockfile',
   );
 });
 
