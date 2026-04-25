@@ -37,7 +37,7 @@ test('report data keeps summary and sample details', () => {
     {
       scenario_key: 'persistent-cache',
       scenario_label: 'Persistent cache',
-      version: 'Rspack 2.0.0-rc.3',
+      version: 'Rspack latest',
       run: 1,
       build_ms: 12,
       build_with_cache_ms: 6,
@@ -48,7 +48,7 @@ test('report data keeps summary and sample details', () => {
     samples_per_version: 2,
     benchmark_run_times: 3,
     benchmark_warmup_times: 2,
-    versions: ['Rspack 1.0.0', 'Rspack 2.0.0-rc.3'],
+    versions: ['Rspack 1.0.0', 'Rspack latest'],
     scenarios: [
       {
         key: 'default-cache',
@@ -58,7 +58,7 @@ test('report data keeps summary and sample details', () => {
       {
         key: 'persistent-cache',
         label: 'Persistent cache',
-        versions: ['Rspack 1.7.11', 'Rspack 2.0.0-rc.3'],
+        versions: ['Rspack 1.7.11', 'Rspack latest'],
       },
     ],
   };
@@ -78,7 +78,7 @@ test('markdown report keeps summary sections without detailed sample tables', ()
       samples_per_version: 1,
       benchmark_run_times: 10,
       benchmark_warmup_times: 2,
-      versions: ['Rspack 1.0.0', 'Rspack 1.7.11', 'Rspack 2.0.0-rc.3'],
+      versions: ['Rspack 1.0.0', 'Rspack 1.7.11', 'Rspack latest'],
       scenarios: [
         {
           key: 'default-cache',
@@ -88,7 +88,7 @@ test('markdown report keeps summary sections without detailed sample tables', ()
         {
           key: 'persistent-cache',
           label: 'Persistent cache',
-          versions: ['Rspack 1.7.11', 'Rspack 2.0.0-rc.3'],
+          versions: ['Rspack 1.7.11', 'Rspack latest'],
         },
       ],
     },
