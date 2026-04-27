@@ -19,6 +19,16 @@ export const DEFAULT_SAMPLES_PER_VERSION = 1;
 export const DEFAULT_BENCHMARK_RUN_TIMES = 10;
 export const DEFAULT_BENCHMARK_WARMUP_TIMES = 2;
 
+export function createDevDependencySetArgs(dependencies) {
+  return Object.entries(dependencies)
+    .map(([name, depVersion]) => `"devDependencies.${name}=${depVersion}"`)
+    .join(' ');
+}
+
+export function createSetVersionInstallCommand(dependencies) {
+  return `corepack pnpm pkg set ${createDevDependencySetArgs(dependencies)} && corepack pnpm install --no-frozen-lockfile`;
+}
+
 function runShell(command, cwd = ROOT) {
   return execFileSync(SHELL, ['-lc', command], {
     cwd,
@@ -100,20 +110,29 @@ function setVersion(version) {
     );
   }
 
-  const rootDeps = Object.entries(version.root)
-    .map(([name, depVersion]) => `${name}@${depVersion}`)
-    .join(' ');
-  const caseDeps = Object.entries(version.case)
-    .map(([name, depVersion]) => `${name}@${depVersion}`)
-    .join(' ');
+  if (version.overrides?.['@rspack/core']) {
+    runShell(
+      `npx -y -p node@24.14.1 -c 'corepack pnpm pkg set "pnpm.overrides.@rspack/core=${version.overrides['@rspack/core']}"'`,
+    );
+  } else {
+    runShell(
+      `npx -y -p node@24.14.1 -c 'corepack pnpm pkg delete "pnpm.overrides.@rspack/core" || true'`,
+    );
+  }
 
-  runShell(
-    `npx -y -p node@24.14.1 -c 'corepack pnpm add -Dw ${rootDeps} && corepack pnpm install'`,
-  );
-  runShell(
-    `npx -y -p node@24.14.1 -c 'corepack pnpm add -D ${caseDeps} && corepack pnpm install'`,
-    CASE_DIR,
-  );
+  if (version.peerDependencyAllowAny?.length) {
+    const allowAny = version.peerDependencyAllowAny
+      .map((item, index) => `"pnpm.peerDependencyRules.allowAny[${index}]=${item}"`)
+      .join(' ');
+    runShell(`npx -y -p node@24.14.1 -c 'corepack pnpm pkg set ${allowAny}'`);
+  } else {
+    runShell(
+      `npx -y -p node@24.14.1 -c 'corepack pnpm pkg delete "pnpm.peerDependencyRules.allowAny" || true'`,
+    );
+  }
+
+  runShell(`npx -y -p node@24.14.1 -c '${createSetVersionInstallCommand(version.root)}'`);
+  runShell(`npx -y -p node@24.14.1 -c '${createSetVersionInstallCommand(version.case)}'`, CASE_DIR);
 }
 
 function main() {

@@ -1,6 +1,6 @@
 # Rspack React-10k Benchmark
 
-Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, and `2.0.0-rc.3` on the `react-10k` case.
+Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, `latest`, and `latest` with `@rspack-canary/core` on the `react-10k` case.
 
 ## What It Benchmarks
 
@@ -8,7 +8,7 @@ Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, 
   - `Build (no cache)`
   - `HMR`
   - `Output size`
-- Persistent cache scenario (`Rspack 1.7.11` and `2.0.0-rc.3` only):
+- Persistent cache scenario (`Rspack 1.7.11`, `latest`, and `latest` with `@rspack-canary/core` only):
   - `Build (no cache)`
   - `Build (with persistent cache)`
   - `Output size`
@@ -22,7 +22,7 @@ pnpm install
 npx puppeteer browsers install chrome
 ```
 
-Run the three-version benchmark matrix:
+Run the benchmark matrix:
 
 ```bash
 pnpm benchmark:versions
@@ -65,3 +65,4 @@ Generated files land in `artifacts/`:
 
 - The repository keeps one copy of the `react-10k` source and switches Rspack versions during execution.
 - `Rspack 1.0.0` uses a `webpack-dev-server@5.0.4` override for compatibility.
+- The canary scenario follows the Rspack canary install guidance by overriding `@rspack/core` with `npm:@rspack-canary/core@latest`.

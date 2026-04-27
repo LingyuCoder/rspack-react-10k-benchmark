@@ -36,21 +36,43 @@ export const VERSION_MATRIX = [
     webpackDevServerOverride: null,
   },
   {
-    key: '2.0.0-rc.3',
-    label: 'Rspack 2.0.0-rc.3',
-    toolName: 'Rspack CLI 2.0.0-rc.3',
+    key: 'latest',
+    label: 'Rspack latest',
+    toolName: 'Rspack CLI',
     root: {
-      '@rspack/core': '2.0.0-rc.3',
-      '@rspack/cli': '2.0.0-rc.3',
-      '@rspack/dev-server': '2.0.0-rc.3',
-      '@rspack/plugin-react-refresh': '2.0.0',
+      '@rspack/core': 'latest',
+      '@rspack/cli': 'latest',
+      '@rspack/dev-server': 'latest',
+      '@rspack/plugin-react-refresh': 'latest',
     },
     case: {
-      '@rspack/core': '2.0.0-rc.3',
-      '@rspack/cli': '2.0.0-rc.3',
-      '@rspack/dev-server': '2.0.0-rc.3',
-      '@rspack/plugin-react-refresh': '2.0.0',
+      '@rspack/core': 'latest',
+      '@rspack/cli': 'latest',
+      '@rspack/dev-server': 'latest',
+      '@rspack/plugin-react-refresh': 'latest',
     },
+    webpackDevServerOverride: null,
+  },
+  {
+    key: 'latest-canary',
+    label: 'Rspack latest (@rspack-canary/core)',
+    toolName: 'Rspack CLI',
+    root: {
+      '@rspack/core': 'latest',
+      '@rspack/cli': 'latest',
+      '@rspack/dev-server': 'latest',
+      '@rspack/plugin-react-refresh': 'latest',
+    },
+    case: {
+      '@rspack/core': 'latest',
+      '@rspack/cli': 'latest',
+      '@rspack/dev-server': 'latest',
+      '@rspack/plugin-react-refresh': 'latest',
+    },
+    overrides: {
+      '@rspack/core': 'npm:@rspack-canary/core@latest',
+    },
+    peerDependencyAllowAny: ['@rspack/*'],
     webpackDevServerOverride: null,
   },
 ];
@@ -72,7 +94,7 @@ export const SCENARIO_MATRIX = [
     measureDev: false,
     measureHmr: false,
     measureBuildWithCache: true,
-    versionKeys: ['1.7.11', '2.0.0-rc.3'],
+    versionKeys: ['1.7.11', 'latest', 'latest-canary'],
   },
 ];
 
