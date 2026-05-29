@@ -26,7 +26,11 @@ export function createDevDependencySetArgs(dependencies) {
 }
 
 export function createSetVersionInstallCommand(dependencies) {
-  return `corepack pnpm pkg set ${createDevDependencySetArgs(dependencies)} && corepack pnpm install --no-frozen-lockfile`;
+  return `corepack pnpm pkg set ${createDevDependencySetArgs(dependencies)}`;
+}
+
+export function createInstallCommand() {
+  return 'corepack pnpm install --no-frozen-lockfile';
 }
 
 function runShell(command, cwd = ROOT) {
@@ -133,6 +137,7 @@ function setVersion(version) {
 
   runShell(`npx -y -p node@24.14.1 -c '${createSetVersionInstallCommand(version.root)}'`);
   runShell(`npx -y -p node@24.14.1 -c '${createSetVersionInstallCommand(version.case)}'`, CASE_DIR);
+  runShell(`npx -y -p node@24.14.1 -c '${createInstallCommand()}'`);
 }
 
 function main() {

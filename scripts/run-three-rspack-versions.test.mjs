@@ -6,6 +6,7 @@ import {
   DEFAULT_BENCHMARK_WARMUP_TIMES,
   DEFAULT_SAMPLES_PER_VERSION,
   createDevDependencySetArgs,
+  createInstallCommand,
   createSetVersionInstallCommand,
   parseRunMetrics,
 } from './run-three-rspack-versions.mjs';
@@ -90,8 +91,9 @@ test('dynamic version installs opt out of CI frozen lockfiles', () => {
     createSetVersionInstallCommand({
       '@rspack/core': '1.0.0',
     }),
-    'corepack pnpm pkg set "devDependencies.@rspack/core=1.0.0" && corepack pnpm install --no-frozen-lockfile',
+    'corepack pnpm pkg set "devDependencies.@rspack/core=1.0.0"',
   );
+  assert.equal(createInstallCommand(), 'corepack pnpm install --no-frozen-lockfile');
 });
 
 test('dynamic latest labels parse the installed Rspack CLI row by prefix', () => {
