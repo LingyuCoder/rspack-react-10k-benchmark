@@ -8,6 +8,7 @@ import {
   createDevDependencySetArgs,
   createInstallCommand,
   createSetVersionInstallCommand,
+  createVersionDisplayLabel,
   parseRunMetrics,
 } from './run-three-rspack-versions.mjs';
 import { SCENARIO_MATRIX, VERSION_MATRIX } from './version-config.mjs';
@@ -98,6 +99,7 @@ test('dynamic version installs opt out of CI frozen lockfiles', () => {
 
 test('dynamic latest labels parse the installed Rspack CLI row by prefix', () => {
   assert.deepEqual(parseRunMetrics(SAMPLE_STDOUT, 'Rspack CLI'), {
+    rspack_version: '3.0.0',
     build_ms: 2030,
     build_with_cache_ms: undefined,
     startup_with_cache_ms: 800,
@@ -108,6 +110,7 @@ test('dynamic latest labels parse the installed Rspack CLI row by prefix', () =>
 
 test('output size and startup-with-cache are parsed from the correct columns', () => {
   assert.deepEqual(parseRunMetrics(SAMPLE_STDOUT, 'Rspack CLI 3.0.0'), {
+    rspack_version: '3.0.0',
     build_ms: 2030,
     build_with_cache_ms: undefined,
     startup_with_cache_ms: 800,
@@ -120,11 +123,27 @@ test('persistent-cache metrics parse without an HMR column', () => {
   assert.deepEqual(
     parseRunMetrics(PERSISTENT_SAMPLE_STDOUT, 'Rspack CLI 3.0.0'),
     {
+      rspack_version: '3.0.0',
       build_ms: 2030,
       build_with_cache_ms: 811,
       startup_with_cache_ms: undefined,
       hmr_ms: undefined,
       output_size_kb: 5934.3,
     },
+  );
+});
+
+test('dynamic latest and canary labels include the resolved Rspack version', () => {
+  const latest = VERSION_MATRIX.find((version) => version.key === 'latest');
+  const canary = VERSION_MATRIX.find((version) => version.key === 'latest-canary');
+
+  assert.equal(createVersionDisplayLabel(latest, '3.0.0'), 'Rspack latest (3.0.0)');
+  assert.equal(
+    createVersionDisplayLabel(canary, '3.0.0-canary-abc'),
+    'Rspack latest (@rspack-canary/core 3.0.0-canary-abc)',
+  );
+  assert.equal(
+    createVersionDisplayLabel(VERSION_MATRIX.find((version) => version.key === '1.7.11'), '1.7.11'),
+    'Rspack 1.7.11',
   );
 });

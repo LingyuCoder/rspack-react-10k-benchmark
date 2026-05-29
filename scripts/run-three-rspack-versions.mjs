@@ -33,6 +33,22 @@ export function createInstallCommand() {
   return 'corepack pnpm install --no-frozen-lockfile';
 }
 
+export function createVersionDisplayLabel(version, rspackVersion) {
+  if (!rspackVersion) {
+    return version.label;
+  }
+
+  if (version.key === 'latest') {
+    return `Rspack latest (${rspackVersion})`;
+  }
+
+  if (version.key === 'latest-canary') {
+    return `Rspack latest (@rspack-canary/core ${rspackVersion})`;
+  }
+
+  return version.label;
+}
+
 function runShell(command, cwd = ROOT) {
   return execFileSync(SHELL, ['-lc', command], {
     cwd,
@@ -90,7 +106,9 @@ export function parseRunMetrics(stdout, toolName) {
   const build = Object.fromEntries(
     buildHeader.map((title, index) => [title, buildRow[index]]),
   );
+  const rspackVersion = /^Rspack CLI\s+(.+)$/.exec(build.Name)?.[1];
   return {
+    rspack_version: rspackVersion,
     build_ms: Number.parseInt(build['Build (no cache)'], 10),
     build_with_cache_ms: build['Build (with cache)']
       ? Number.parseInt(build['Build (with cache)'], 10)
@@ -140,6 +158,33 @@ function setVersion(version) {
   runShell(`npx -y -p node@24.14.1 -c '${createInstallCommand()}'`);
 }
 
+function writeRunMeta(scenarios, versionLabels, sampleCount, benchmarkRunTimes, benchmarkWarmupTimes) {
+  writeFileSync(
+    RUN_META_JSON,
+    JSON.stringify(
+      {
+        samples_per_version: sampleCount,
+        benchmark_run_times: benchmarkRunTimes,
+        benchmark_warmup_times: benchmarkWarmupTimes,
+        versions: VERSION_MATRIX.map((version) => versionLabels.get(version.key) ?? version.label),
+        scenarios: scenarios.map((scenario) => ({
+          key: scenario.key,
+          label: scenario.label,
+          cache_mode: scenario.cacheMode,
+          measure_dev: scenario.measureDev,
+          measure_hmr: scenario.measureHmr,
+          measure_build_with_cache: scenario.measureBuildWithCache,
+          versions: getVersionsForScenario(scenario).map(
+            (version) => versionLabels.get(version.key) ?? version.label,
+          ),
+        })),
+      },
+      null,
+      2,
+    ) + '\n',
+  );
+}
+
 function main() {
   mkdirSync(ARTIFACTS_DIR, { recursive: true });
   const sampleCount = Number.parseInt(
@@ -156,29 +201,9 @@ function main() {
   );
   const results = [];
   const scenarios = getSelectedScenarios();
+  const versionLabels = new Map(VERSION_MATRIX.map((version) => [version.key, version.label]));
 
-  writeFileSync(
-    RUN_META_JSON,
-    JSON.stringify(
-      {
-        samples_per_version: sampleCount,
-        benchmark_run_times: benchmarkRunTimes,
-        benchmark_warmup_times: benchmarkWarmupTimes,
-        versions: VERSION_MATRIX.map((version) => version.label),
-        scenarios: scenarios.map((scenario) => ({
-          key: scenario.key,
-          label: scenario.label,
-          cache_mode: scenario.cacheMode,
-          measure_dev: scenario.measureDev,
-          measure_hmr: scenario.measureHmr,
-          measure_build_with_cache: scenario.measureBuildWithCache,
-          versions: getVersionsForScenario(scenario).map((version) => version.label),
-        })),
-      },
-      null,
-      2,
-    ) + '\n',
-  );
+  writeRunMeta(scenarios, versionLabels, sampleCount, benchmarkRunTimes, benchmarkWarmupTimes);
 
   for (const scenario of scenarios) {
     console.log(`\n=== ${scenario.label} ===`);
@@ -192,6 +217,9 @@ function main() {
         const stdout = runShell(
           `npx -y -p node@24.14.1 -c 'CASE=react-10k TOOLS=rspack RSPACK_CACHE_MODE=${scenario.cacheMode} BENCHMARK_DEV=${scenario.measureDev ? '1' : '0'} BENCHMARK_HMR=${scenario.measureHmr ? '1' : '0'} BENCHMARK_BUILD_WITH_CACHE=${scenario.measureBuildWithCache ? '1' : '0'} RUN_TIMES=${benchmarkRunTimes} WARMUP_TIMES=${benchmarkWarmupTimes} corepack pnpm benchmark'`,
         );
+        const metrics = parseRunMetrics(stdout, version.toolName);
+        const displayLabel = createVersionDisplayLabel(version, metrics.rspack_version);
+        versionLabels.set(version.key, displayLabel);
         writeFileSync(
           path.join(ARTIFACTS_DIR, `${scenario.key}-${version.key}-run-${run}.txt`),
           stdout,
@@ -199,10 +227,11 @@ function main() {
         results.push({
           scenario_key: scenario.key,
           scenario_label: scenario.label,
-          version: version.label,
+          version: displayLabel,
           run,
-          ...parseRunMetrics(stdout, version.toolName),
+          ...metrics,
         });
+        writeRunMeta(scenarios, versionLabels, sampleCount, benchmarkRunTimes, benchmarkWarmupTimes);
         writeFileSync(
           path.join(ARTIFACTS_DIR, 'run-samples.json'),
           JSON.stringify(results, null, 2) + '\n',
