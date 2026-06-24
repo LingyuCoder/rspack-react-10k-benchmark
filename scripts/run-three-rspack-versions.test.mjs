@@ -41,10 +41,10 @@ test('default sampling strategy uses one outer sample and ten inner measured run
   assert.equal(DEFAULT_BENCHMARK_WARMUP_TIMES, 2);
 });
 
-test('runner keeps a dedicated persistent-cache scenario for selected stable versions, latest, and canary', () => {
+test('runner keeps a dedicated persistent-cache scenario for selected versions, latest, and canary', () => {
   assert.deepEqual(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'persistent-cache')?.versionKeys,
-    ['1.7.11', '2.0.0', 'latest', 'latest-canary'],
+    ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
   );
   assert.equal(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'default-cache')?.label,
