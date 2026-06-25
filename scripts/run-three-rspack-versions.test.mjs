@@ -35,17 +35,36 @@ Build metrics:
 | Rspack CLI 3.0.0 | 2030ms | 811ms | 900MB | 5934.3kB | 1368.1kB |
 `;
 
+const RSPACK_2_0_PATCH_VERSIONS = Array.from(
+  { length: 9 },
+  (_, index) => `2.0.${index}`,
+);
+
 test('default sampling strategy uses one outer sample and ten inner measured runs', () => {
   assert.equal(DEFAULT_SAMPLES_PER_VERSION, 1);
   assert.equal(DEFAULT_BENCHMARK_RUN_TIMES, 10);
   assert.equal(DEFAULT_BENCHMARK_WARMUP_TIMES, 2);
 });
 
-test('runner keeps a dedicated persistent-cache scenario for selected versions, latest, and canary', () => {
+test('runner covers every Rspack 2.0 patch version in default and persistent-cache scenarios', () => {
+  assert.deepEqual(
+    VERSION_MATRIX
+      .map((version) => version.key)
+      .filter((version) => version.startsWith('2.0.')),
+    RSPACK_2_0_PATCH_VERSIONS,
+  );
+  assert.deepEqual(
+    SCENARIO_MATRIX.find((scenario) => scenario.key === 'default-cache')?.versionKeys
+      .filter((version) => version.startsWith('2.0.')),
+    RSPACK_2_0_PATCH_VERSIONS,
+  );
   assert.deepEqual(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'persistent-cache')?.versionKeys,
-    ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
+    ['1.7.11', ...RSPACK_2_0_PATCH_VERSIONS, '2.1.0-rc.0', 'latest', 'latest-canary'],
   );
+});
+
+test('runner keeps a dedicated persistent-cache scenario for selected versions, latest, and canary', () => {
   assert.equal(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'default-cache')?.label,
     'Memory cache',

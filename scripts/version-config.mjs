@@ -1,3 +1,29 @@
+const RSPACK_2_0_PATCH_VERSIONS = Array.from(
+  { length: 9 },
+  (_, index) => `2.0.${index}`,
+);
+
+function createRspackVersion(version) {
+  return {
+    key: version,
+    label: `Rspack ${version}`,
+    toolName: `Rspack CLI ${version}`,
+    root: {
+      '@rspack/core': version,
+      '@rspack/cli': version,
+      '@rspack/dev-server': version,
+      '@rspack/plugin-react-refresh': version,
+    },
+    case: {
+      '@rspack/core': version,
+      '@rspack/cli': version,
+      '@rspack/dev-server': version,
+      '@rspack/plugin-react-refresh': version,
+    },
+    webpackDevServerOverride: null,
+  };
+}
+
 export const VERSION_MATRIX = [
   {
     key: '1.0.0',
@@ -35,24 +61,7 @@ export const VERSION_MATRIX = [
     },
     webpackDevServerOverride: null,
   },
-  {
-    key: '2.0.0',
-    label: 'Rspack 2.0.0',
-    toolName: 'Rspack CLI 2.0.0',
-    root: {
-      '@rspack/core': '2.0.0',
-      '@rspack/cli': '2.0.0',
-      '@rspack/dev-server': '2.0.0',
-      '@rspack/plugin-react-refresh': '2.0.0',
-    },
-    case: {
-      '@rspack/core': '2.0.0',
-      '@rspack/cli': '2.0.0',
-      '@rspack/dev-server': '2.0.0',
-      '@rspack/plugin-react-refresh': '2.0.0',
-    },
-    webpackDevServerOverride: null,
-  },
+  ...RSPACK_2_0_PATCH_VERSIONS.map(createRspackVersion),
   {
     key: '2.1.0-rc.0',
     label: 'Rspack 2.1.0-rc.0',
@@ -131,7 +140,13 @@ export const SCENARIO_MATRIX = [
     measureDev: false,
     measureHmr: false,
     measureBuildWithCache: true,
-    versionKeys: ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
+    versionKeys: [
+      '1.7.11',
+      ...RSPACK_2_0_PATCH_VERSIONS,
+      '2.1.0-rc.0',
+      'latest',
+      'latest-canary',
+    ],
   },
 ];
 
