@@ -2,6 +2,8 @@ const RSPACK_2_0_PATCH_VERSIONS = Array.from(
   { length: 9 },
   (_, index) => `2.0.${index}`,
 );
+const RSPACK_2_0_DEV_SERVER_VERSION = '2.0.3';
+const RSPACK_2_0_REACT_REFRESH_VERSION = '2.0.2';
 
 function createRspackVersion(version) {
   return {
@@ -11,14 +13,14 @@ function createRspackVersion(version) {
     root: {
       '@rspack/core': version,
       '@rspack/cli': version,
-      '@rspack/dev-server': version,
-      '@rspack/plugin-react-refresh': version,
+      '@rspack/dev-server': RSPACK_2_0_DEV_SERVER_VERSION,
+      '@rspack/plugin-react-refresh': RSPACK_2_0_REACT_REFRESH_VERSION,
     },
     case: {
       '@rspack/core': version,
       '@rspack/cli': version,
-      '@rspack/dev-server': version,
-      '@rspack/plugin-react-refresh': version,
+      '@rspack/dev-server': RSPACK_2_0_DEV_SERVER_VERSION,
+      '@rspack/plugin-react-refresh': RSPACK_2_0_REACT_REFRESH_VERSION,
     },
     webpackDevServerOverride: null,
   };

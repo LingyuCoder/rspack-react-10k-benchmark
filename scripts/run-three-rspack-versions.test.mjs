@@ -47,11 +47,27 @@ test('default sampling strategy uses one outer sample and ten inner measured run
 });
 
 test('runner covers every Rspack 2.0 patch version in default and persistent-cache scenarios', () => {
+  const rspack2Versions = VERSION_MATRIX.filter((version) => version.key.startsWith('2.0.'));
+
   assert.deepEqual(
-    VERSION_MATRIX
-      .map((version) => version.key)
-      .filter((version) => version.startsWith('2.0.')),
+    rspack2Versions.map((version) => version.key),
     RSPACK_2_0_PATCH_VERSIONS,
+  );
+  assert.deepEqual(
+    rspack2Versions.map((version) => version.root['@rspack/core']),
+    RSPACK_2_0_PATCH_VERSIONS,
+  );
+  assert.deepEqual(
+    rspack2Versions.map((version) => version.root['@rspack/cli']),
+    RSPACK_2_0_PATCH_VERSIONS,
+  );
+  assert.deepEqual(
+    [...new Set(rspack2Versions.map((version) => version.root['@rspack/dev-server']))],
+    ['2.0.3'],
+  );
+  assert.deepEqual(
+    [...new Set(rspack2Versions.map((version) => version.root['@rspack/plugin-react-refresh']))],
+    ['2.0.2'],
   );
   assert.deepEqual(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'default-cache')?.versionKeys
