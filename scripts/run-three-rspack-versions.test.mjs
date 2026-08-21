@@ -41,10 +41,17 @@ test('default sampling strategy uses one outer sample and ten inner measured run
   assert.equal(DEFAULT_BENCHMARK_WARMUP_TIMES, 2);
 });
 
-test('runner keeps a dedicated persistent-cache scenario for selected versions, latest, and canary', () => {
+test('runner keeps a dedicated persistent-cache scenario for selected versions, latest, beta, and canary', () => {
   assert.deepEqual(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'persistent-cache')?.versionKeys,
-    ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
+    [
+      '1.7.11',
+      '2.0.0',
+      '2.1.0-rc.0',
+      'latest',
+      '2.2.0-beta.1',
+      'latest-canary',
+    ],
   );
   assert.equal(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'default-cache')?.label,
@@ -64,13 +71,20 @@ test('runner keeps a dedicated persistent-cache scenario for selected versions, 
   );
 });
 
-test('version matrix compares stable latest with canary core latest', () => {
+test('version matrix compares stable latest with the latest beta and canary core latest', () => {
   const latest = VERSION_MATRIX.find((version) => version.key === 'latest');
+  const beta = VERSION_MATRIX.find((version) => version.key === '2.2.0-beta.1');
   const canary = VERSION_MATRIX.find((version) => version.key === 'latest-canary');
 
   assert.equal(latest?.label, 'Rspack latest');
   assert.equal(latest?.root['@rspack/core'], 'latest');
   assert.equal(latest?.root['@rspack/plugin-react-refresh'], 'latest');
+  assert.equal(beta?.label, 'Rspack 2.2.0-beta.1');
+  assert.equal(beta?.root['@rspack/core'], '2.2.0-beta.1');
+  assert.equal(beta?.root['@rspack/cli'], '2.2.0-beta.1');
+  assert.equal(beta?.root['@rspack/dev-server'], 'latest');
+  assert.equal(beta?.root['@rspack/plugin-react-refresh'], 'latest');
+  assert.deepEqual(beta?.peerDependencyAllowAny, ['@rspack/*']);
   assert.equal(canary?.label, 'Rspack latest (@rspack-canary/core)');
   assert.equal(canary?.root['@rspack/core'], 'latest');
   assert.equal(canary?.overrides?.['@rspack/core'], 'npm:@rspack-canary/core@latest');
