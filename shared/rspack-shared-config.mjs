@@ -16,6 +16,7 @@ export function createRspackSharedConfig(
   cacheMode = 'default',
 ) {
   const isRspack1x = /^1\./.test(rspackVersion);
+  const useFasterModuleConcatenation = rspackVersion === '2.2.0-beta.1';
   const usePersistentCache = cacheMode === 'persistent';
   const persistentCacheSettings = createPersistentCacheSettings(rspackVersion);
 
@@ -29,7 +30,12 @@ export function createRspackSharedConfig(
             ? { cache: persistentCacheSettings }
             : {}),
         }
-      : { css: false },
+      : {
+          css: false,
+          ...(useFasterModuleConcatenation
+            ? { fasterModuleConcatenation: true }
+            : {}),
+        },
     target: ['web', target],
     lazyCompilation: isRspack1x ? undefined : !isProd,
     resolve: {

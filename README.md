@@ -65,4 +65,5 @@ Generated files land in `artifacts/`:
 
 - The repository keeps one copy of the `react-10k` source and switches Rspack versions during execution.
 - `Rspack 1.0.0` uses a `webpack-dev-server@5.0.4` override for compatibility.
+- `Rspack 2.2.0-beta.1` enables `experiments.fasterModuleConcatenation`.
 - The canary scenario follows the Rspack canary install guidance by overriding `@rspack/core` with `npm:@rspack-canary/core@latest`.
