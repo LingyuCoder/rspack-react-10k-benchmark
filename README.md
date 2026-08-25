@@ -1,6 +1,6 @@
 # Rspack React-10k Benchmark
 
-Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, `2.0.0`, `2.1.0-rc.0`, `latest`, and `latest` with `@rspack-canary/core` on the `react-10k` case.
+Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, `2.0.0`, `2.1.0-rc.0`, `latest`, `2.2.0-rc.0`, and `latest` with `@rspack-canary/core` on the `react-10k` case.
 
 ## What It Benchmarks
 
@@ -8,7 +8,7 @@ Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, 
   - `Build (no cache)`
   - `HMR`
   - `Output size`
-- Persistent cache scenario (`Rspack 1.7.11`, `2.0.0`, `2.1.0-rc.0`, `latest`, and `latest` with `@rspack-canary/core` only):
+- Persistent cache scenario (`Rspack 1.7.11`, `2.0.0`, `2.1.0-rc.0`, `latest`, `2.2.0-rc.0`, and `latest` with `@rspack-canary/core` only):
   - `Build (no cache)`
   - `Build (with persistent cache)`
   - `Output size`
