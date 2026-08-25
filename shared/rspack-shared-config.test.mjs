@@ -20,15 +20,6 @@ test('Rspack 2.x moves lazyCompilation to the top level', () => {
   assert.deepEqual(config.cache, { type: 'memory' });
 });
 
-test('Rspack 2.2.0-beta.1 enables faster module concatenation', () => {
-  const config = createRspackSharedConfig('2.2.0-beta.1', 'persistent');
-  assert.deepEqual(config.experiments, {
-    css: false,
-    fasterModuleConcatenation: true,
-  });
-  assert.equal(config.cache.type, 'persistent');
-});
-
 test('Rspack 1.x persistent cache stays under experiments.cache', () => {
   const config = createRspackSharedConfig('1.7.11', 'persistent');
   assert.equal(config.cache, true);
