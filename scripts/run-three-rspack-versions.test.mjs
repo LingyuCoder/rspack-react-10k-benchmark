@@ -11,7 +11,7 @@ import {
   createVersionDisplayLabel,
   parseRunMetrics,
 } from './run-three-rspack-versions.mjs';
-import { SCENARIO_MATRIX, VERSION_MATRIX } from './version-config.mjs';
+import { getVersionsForScenario, SCENARIO_MATRIX, VERSION_MATRIX } from './version-config.mjs';
 
 const SAMPLE_STDOUT = `
 Build metrics:
@@ -44,7 +44,14 @@ test('default sampling strategy uses one outer sample and ten inner measured run
 test('runner keeps a dedicated persistent-cache scenario for selected versions, latest, and canary', () => {
   assert.deepEqual(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'persistent-cache')?.versionKeys,
-    ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
+    [
+      '1.7.11',
+      '2.0.0',
+      '2.1.0-rc.0',
+      'latest',
+      'latest-canary',
+      '2.2.4-canary-15531fa0-20260912180520',
+    ],
   );
   assert.equal(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'default-cache')?.label,
@@ -75,6 +82,24 @@ test('version matrix compares stable latest with canary core latest', () => {
   assert.equal(canary?.root['@rspack/core'], 'latest');
   assert.equal(canary?.overrides?.['@rspack/core'], 'npm:@rspack-canary/core@latest');
   assert.deepEqual(canary?.peerDependencyAllowAny, ['@rspack/*']);
+});
+
+test('pinned canary participates in both scenarios with an exact core override and report label', () => {
+  const version = '2.2.4-canary-15531fa0-20260912180520';
+  const canary = VERSION_MATRIX.find((item) => item.key === version);
+  const latestCanary = VERSION_MATRIX.find((item) => item.key === 'latest-canary');
+
+  assert.ok(canary);
+  assert.deepEqual(canary.root, latestCanary.root);
+  assert.deepEqual(canary.case, latestCanary.case);
+  assert.equal(canary.overrides['@rspack/core'], `npm:@rspack-canary/core@${version}`);
+  assert.deepEqual(canary.peerDependencyAllowAny, ['@rspack/*']);
+  for (const scenario of SCENARIO_MATRIX) {
+    assert.ok(getVersionsForScenario(scenario).includes(canary));
+  }
+  assert.equal(createVersionDisplayLabel(canary, version), `Rspack ${version}`);
+  const stdout = SAMPLE_STDOUT.replaceAll('3.0.0', version);
+  assert.equal(parseRunMetrics(stdout, canary.toolName).rspack_version, version);
 });
 
 test('dependency updates preserve tag specifiers instead of resolving them first', () => {

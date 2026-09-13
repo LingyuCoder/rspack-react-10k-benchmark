@@ -1,6 +1,6 @@
 # Rspack React-10k Benchmark
 
-Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, `2.0.0`, `2.1.0-rc.0`, `latest`, and `latest` with `@rspack-canary/core` on the `react-10k` case.
+Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, `2.0.0`, `2.1.0-rc.0`, `latest`, `latest` with `@rspack-canary/core`, and the pinned canary `2.2.4-canary-15531fa0-20260912180520` on the `react-10k` case.
 
 ## What It Benchmarks
 
@@ -8,7 +8,7 @@ Minimal standalone benchmark repository for comparing `Rspack 1.0.0`, `1.7.11`, 
   - `Build (no cache)`
   - `HMR`
   - `Output size`
-- Persistent cache scenario (`Rspack 1.7.11`, `2.0.0`, `2.1.0-rc.0`, `latest`, and `latest` with `@rspack-canary/core` only):
+- Persistent cache scenario (all versions above except `Rspack 1.0.0`):
   - `Build (no cache)`
   - `Build (with persistent cache)`
   - `Output size`
@@ -65,4 +65,5 @@ Generated files land in `artifacts/`:
 
 - The repository keeps one copy of the `react-10k` source and switches Rspack versions during execution.
 - `Rspack 1.0.0` uses a `webpack-dev-server@5.0.4` override for compatibility.
-- The canary scenario follows the Rspack canary install guidance by overriding `@rspack/core` with `npm:@rspack-canary/core@latest`.
+- The latest-canary scenario follows the Rspack canary install guidance by overriding `@rspack/core` with `npm:@rspack-canary/core@latest`.
+- The pinned-canary scenario overrides `@rspack/core` with `npm:@rspack-canary/core@2.2.4-canary-15531fa0-20260912180520` in both cache scenarios, while keeping the same CLI, dev server, and React refresh plugin settings as latest-canary. It appears as a separate row in the reports.

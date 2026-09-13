@@ -112,6 +112,28 @@ export const VERSION_MATRIX = [
     peerDependencyAllowAny: ['@rspack/*'],
     webpackDevServerOverride: null,
   },
+  {
+    key: '2.2.4-canary-15531fa0-20260912180520',
+    label: 'Rspack 2.2.4-canary-15531fa0-20260912180520',
+    toolName: 'Rspack CLI 2.2.4-canary-15531fa0-20260912180520',
+    root: {
+      '@rspack/core': 'latest',
+      '@rspack/cli': 'latest',
+      '@rspack/dev-server': 'latest',
+      '@rspack/plugin-react-refresh': 'latest',
+    },
+    case: {
+      '@rspack/core': 'latest',
+      '@rspack/cli': 'latest',
+      '@rspack/dev-server': 'latest',
+      '@rspack/plugin-react-refresh': 'latest',
+    },
+    overrides: {
+      '@rspack/core': 'npm:@rspack-canary/core@2.2.4-canary-15531fa0-20260912180520',
+    },
+    peerDependencyAllowAny: ['@rspack/*'],
+    webpackDevServerOverride: null,
+  },
 ];
 
 export const SCENARIO_MATRIX = [
@@ -131,7 +153,14 @@ export const SCENARIO_MATRIX = [
     measureDev: false,
     measureHmr: false,
     measureBuildWithCache: true,
-    versionKeys: ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
+    versionKeys: [
+      '1.7.11',
+      '2.0.0',
+      '2.1.0-rc.0',
+      'latest',
+      'latest-canary',
+      '2.2.4-canary-15531fa0-20260912180520',
+    ],
   },
 ];
 
