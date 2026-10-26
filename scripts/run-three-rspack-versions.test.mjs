@@ -11,7 +11,11 @@ import {
   createVersionDisplayLabel,
   parseRunMetrics,
 } from './run-three-rspack-versions.mjs';
-import { SCENARIO_MATRIX, VERSION_MATRIX } from './version-config.mjs';
+import {
+  getVersionsForScenario,
+  SCENARIO_MATRIX,
+  VERSION_MATRIX,
+} from './version-config.mjs';
 
 const SAMPLE_STDOUT = `
 Build metrics:
@@ -44,7 +48,15 @@ test('default sampling strategy uses one outer sample and ten inner measured run
 test('runner keeps a dedicated persistent-cache scenario for selected versions, latest, and canary', () => {
   assert.deepEqual(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'persistent-cache')?.versionKeys,
-    ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
+    [
+      '1.7.11',
+      '2.0.0',
+      '2.1.0-rc.0',
+      '2.2.0',
+      '2.3.0-beta.1',
+      'latest',
+      'latest-canary',
+    ],
   );
   assert.equal(
     SCENARIO_MATRIX.find((scenario) => scenario.key === 'default-cache')?.label,
@@ -75,6 +87,20 @@ test('version matrix compares stable latest with canary core latest', () => {
   assert.equal(canary?.root['@rspack/core'], 'latest');
   assert.equal(canary?.overrides?.['@rspack/core'], 'npm:@rspack-canary/core@latest');
   assert.deepEqual(canary?.peerDependencyAllowAny, ['@rspack/*']);
+});
+
+test('2.2.0 and 2.3.0-beta.1 participate in every scenario with pinned Rspack packages', () => {
+  for (const versionKey of ['2.2.0', '2.3.0-beta.1']) {
+    const version = VERSION_MATRIX.find((item) => item.key === versionKey);
+    assert.ok(version);
+    assert.equal(version.root['@rspack/core'], versionKey);
+    assert.equal(version.root['@rspack/cli'], versionKey);
+    assert.equal(version.root['@rspack/dev-server'], '2.2.2');
+    assert.equal(version.root['@rspack/plugin-react-refresh'], '2.0.2');
+    for (const scenario of SCENARIO_MATRIX) {
+      assert.ok(getVersionsForScenario(scenario).includes(version));
+    }
+  }
 });
 
 test('dependency updates preserve tag specifiers instead of resolving them first', () => {

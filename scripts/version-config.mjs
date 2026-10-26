@@ -73,6 +73,44 @@ export const VERSION_MATRIX = [
     webpackDevServerOverride: null,
   },
   {
+    key: '2.2.0',
+    label: 'Rspack 2.2.0',
+    toolName: 'Rspack CLI 2.2.0',
+    root: {
+      '@rspack/core': '2.2.0',
+      '@rspack/cli': '2.2.0',
+      '@rspack/dev-server': '2.2.2',
+      '@rspack/plugin-react-refresh': '2.0.2',
+    },
+    case: {
+      '@rspack/core': '2.2.0',
+      '@rspack/cli': '2.2.0',
+      '@rspack/dev-server': '2.2.2',
+      '@rspack/plugin-react-refresh': '2.0.2',
+    },
+    peerDependencyAllowAny: ['@rspack/*'],
+    webpackDevServerOverride: null,
+  },
+  {
+    key: '2.3.0-beta.1',
+    label: 'Rspack 2.3.0-beta.1',
+    toolName: 'Rspack CLI 2.3.0-beta.1',
+    root: {
+      '@rspack/core': '2.3.0-beta.1',
+      '@rspack/cli': '2.3.0-beta.1',
+      '@rspack/dev-server': '2.2.2',
+      '@rspack/plugin-react-refresh': '2.0.2',
+    },
+    case: {
+      '@rspack/core': '2.3.0-beta.1',
+      '@rspack/cli': '2.3.0-beta.1',
+      '@rspack/dev-server': '2.2.2',
+      '@rspack/plugin-react-refresh': '2.0.2',
+    },
+    peerDependencyAllowAny: ['@rspack/*'],
+    webpackDevServerOverride: null,
+  },
+  {
     key: 'latest',
     label: 'Rspack latest',
     toolName: 'Rspack CLI',
@@ -131,7 +169,15 @@ export const SCENARIO_MATRIX = [
     measureDev: false,
     measureHmr: false,
     measureBuildWithCache: true,
-    versionKeys: ['1.7.11', '2.0.0', '2.1.0-rc.0', 'latest', 'latest-canary'],
+    versionKeys: [
+      '1.7.11',
+      '2.0.0',
+      '2.1.0-rc.0',
+      '2.2.0',
+      '2.3.0-beta.1',
+      'latest',
+      'latest-canary',
+    ],
   },
 ];
 
